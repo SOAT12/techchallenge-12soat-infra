@@ -33,9 +33,9 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 
 # RDS PostgreSQL instance
 resource "aws_db_instance" "postgres_db" {
-  identifier        = "techchallenge-db"
-  allocated_storage = 20
-  engine            = "postgres"
+  identifier             = "techchallenge-db"
+  allocated_storage      = 20
+  engine                 = "postgres"
   engine_version         = "15.14"
   instance_class         = "db.t3.micro"
   db_name                = "postgres"

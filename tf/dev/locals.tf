@@ -1,5 +1,5 @@
 locals {
-  name        = "techchallenge-vpc"
-  environment = "dev"
+  name         = "techchallenge-vpc"
+  environment  = "dev"
   cluster_name = "techchallenge-cluster"
 }
