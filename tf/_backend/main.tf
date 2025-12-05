@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "tfstate" {
 
   # Impede a destruição acidental do bucket
   lifecycle {
-    prevent_destroy = true
+    # prevent_destroy = true
   }
 }
 
