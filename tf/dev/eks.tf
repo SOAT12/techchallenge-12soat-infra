@@ -5,6 +5,11 @@ module "eks" {
   cluster_name    = local.cluster_name
   cluster_version = "1.30"
 
+  kms_key_administrators = [
+    "arn:aws:iam::258531703731:role/GitHubActionsInfraRole",
+    "arn:aws:iam::258531703731:user/caiohnrq"
+  ]
+
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.public_subnets
 
