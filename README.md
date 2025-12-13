@@ -58,6 +58,7 @@ Para remover todos os recursos criados pelo Terraform nesta configuração, util
 
 **Atenção:** Este comando é destrutivo e irá apagar permanentemente a infraestrutura gerenciada. Use com cuidado.
 ```bash
-terraform apply
+terraform destroy
 ```
 * Lembre de executar o comando tanto para a pasta `/_backend`, como para `/dev`
+* Também pode ser executado com a flag -auto-approve.
