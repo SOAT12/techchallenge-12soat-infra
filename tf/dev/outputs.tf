@@ -37,5 +37,5 @@ output "rds_password" {
 
 output "configure_kubectl" {
   description = "Comando para configurar o kubectl para o cluster."
-  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region sa-east-1"
+  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region us-east-1"
 }

@@ -1,6 +1,6 @@
 # Define o provider da AWS
 provider "aws" {
-  region = "sa-east-1"
+  region = "us-east-1"
 }
 
 # Cria o bucket S3 para armazenar o arquivo de estado
