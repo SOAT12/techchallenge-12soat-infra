@@ -5,7 +5,7 @@ provider "aws" {
 
 # Cria o bucket S3 para armazenar o arquivo de estado
 resource "aws_s3_bucket" "tfstate" {
-  bucket = "techchallenge-12soat-terraform-state-bucket"
+  bucket = "techchallenge-12soat-tfstate-bucket-us1"
 
   # Impede a destruição acidental do bucket
   lifecycle {
