@@ -29,6 +29,16 @@ module "eks" {
     }
   }
 
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::258531703731:user/caiohnrq"
+      username = "caiohnrq"
+      groups   = ["system:masters"]
+    }
+  ]
+
   tags = {
     Terraform   = "true"
     Environment = "dev"
