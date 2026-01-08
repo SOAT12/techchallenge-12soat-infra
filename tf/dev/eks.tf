@@ -32,6 +32,14 @@ module "eks" {
 
   manage_aws_auth_configmap = true
 
+  aws_auth_roles = [
+    {
+      rolearn  = "arn:aws:iam::258531703731:role/GitHubActionsEKSDeployRole"
+      username = "github-actions-deploy"
+      groups   = ["system:masters"]
+    }
+  ]
+
   aws_auth_users = [
     {
       userarn  = "arn:aws:iam::258531703731:user/caiohnrq"
