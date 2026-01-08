@@ -7,7 +7,8 @@ module "eks" {
 
   kms_key_administrators = [
     "arn:aws:iam::258531703731:role/GitHubActionsInfraRole",
-    "arn:aws:iam::258531703731:user/caiohnrq"
+    "arn:aws:iam::258531703731:user/caiohnrq",
+    "arn:aws:iam::258531703731:role/GitHubActionsEKSDeployRole"
   ]
 
   vpc_id     = module.vpc.vpc_id
