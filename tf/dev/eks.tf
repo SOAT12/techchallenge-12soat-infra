@@ -8,7 +8,7 @@ module "eks" {
   kms_key_administrators = [
     "arn:aws:iam::258531703731:role/GitHubActionsInfraRole",
     "arn:aws:iam::258531703731:user/caiohnrq",
-    "arn:aws:iam::258531703731:role/GitHubActionsEKSDeployRole"
+    "arn:aws:iam::258531703731:role/GitHubActionsAppDeployRole"
   ]
 
   vpc_id     = module.vpc.vpc_id
@@ -34,7 +34,7 @@ module "eks" {
 
   aws_auth_roles = [
     {
-      rolearn  = "arn:aws:iam::258531703731:role/GitHubActionsEKSDeployRole"
+      rolearn  = "arn:aws:iam::258531703731:role/GitHubActionsAppDeployRole"
       username = "github-actions-app-deploy"
       groups   = ["system:masters"]
     }
