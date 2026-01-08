@@ -1,5 +1,7 @@
 name: Terraform CI/CD
 
+run-name: 'Terraform: ${{ github.event.inputs.action_type || github.event_name }} por @${{ github.actor }}'
+
 on:
   push:
     branches:
