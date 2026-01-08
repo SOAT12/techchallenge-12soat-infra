@@ -8,9 +8,21 @@ on:
     branches:
       - main
 
+  # 1. GATILHO MANUAL (ADICIONADO)
+  workflow_dispatch:
+    inputs:
+      action_type:
+        description: 'Selecione a ação (apply ou destroy)'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'Terraform Apply'
     runs-on: ubuntu-latest
 
     defaults:
@@ -29,7 +41,6 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # ATENÇÃO: Crie este IAM Role na sua conta AWS!
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsInfraRole
           aws-region: us-east-1
 
@@ -82,5 +93,46 @@ jobs:
 
       - name: Terraform Apply
         # Executa 'apply' apenas quando o código é mergeado na 'main'
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: >
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.action_type == 'apply')
         run: terraform apply -auto-approve -input=false
+
+  # ---------------------------------------------------------------------- #
+  # JOB DE DESTRUIÇÃO (ACIONALMENTE MANUAL E CONDICIONAL)
+  # ---------------------------------------------------------------------- #
+  destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./tf/dev # Define o diretório padrão para todos os comandos
+
+    permissions:
+      contents: read
+      pull-requests: write # Para postar comentários nos PRs
+      id-token: write      # Para autenticação OIDC com a AWS
+
+    # Roda APENAS quando for acionado manualmente e a opção 'destroy' for selecionada
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action_type == 'destroy'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsInfraRole
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
