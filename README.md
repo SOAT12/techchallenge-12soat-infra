@@ -8,7 +8,7 @@ O foco deste repositório é prover toda a estrutura necessária para manter a a
 
 ### Infraestrutura e Recursos da AWS
 
-* **DynamoDB e S3:** Serviços utilizados para gerenciar os arquivos de estado da infraestrutura (.tfstate).
+* **S3:** Serviços utilizados para gerenciar os arquivos de estado da infraestrutura (.tfstate).
 * **EKS:** Serviço de gerenciamento do serviços do Kubernetes
 * **ECR:** Serviço de armazenamento da imagem Docker da aplicação.
 * **Ingress:** Serviço de gerenciamento de acesso externo aos serviços no cluster.
@@ -26,31 +26,21 @@ Esta seção descreve como utilizar o Terraform para provisionar toda a infraest
 
 #### Passos para Execução
 
-1. **Vá ate o caminho: `./tf/_backend/`**, e execute o comando:
-   ```bash
-   terraform init
-    ```
-    * Comando para inicializar o ambiente e preparar a infraestrutura necessária para ser provisionada.
-
-2.  Em seguida, execute o seguinte comando para inicializar o DynamoDB e o S3:
-    ```bash
-    terraform apply
-    ```
-    * Utilize a flag -auto-approve, caso não queira revisar o plano de execução antes de aprová-lo para execução.
-
-3. Na sequência, **vá até `./tf/dev/`**, para iniciar a infraestrutura do cluster da aplicação:
+1. Na sequência, **vá até `./tf/dev/`**, para iniciar a infraestrutura do cluster da aplicação:
     ```bash
     terraform init
     ```
-4. Após a preparação do ambiente, a estrutura pode ser inicializada e provisionada:
+2. Após a preparação do ambiente, a estrutura pode ser inicializada e provisionada:
     ```bash
     terraform apply
     ```
     * -auto-approve.
 
-5. Com esses passos a infraestrutura planejada vai ser provisionada e garantir que a aplicação pode ser deployada.
+3. Com esses passos a infraestrutura planejada vai ser provisionada e garantir que a aplicação pode ser deployada.
 
-6. Caso, queira validar a infraestrutura gerada, pode consultar pelo console de cluster na AWS (EKS), que o cluster já deverá estar criado.
+4. Caso, queira validar a infraestrutura gerada, pode consultar pelo console de cluster na AWS (EKS), que o cluster já deverá estar criado.
+
+5. Há a opção de realizar a execução dos steps de apply e destroy também pelo CI/CD configurados no GitHub Actions no [repositório](https://github.com/SOAT12/techchallenge-12soat-infra/actions/workflows/main.yml).
 
 #### Destruindo a Infraestrutura
 
@@ -60,5 +50,5 @@ Para remover todos os recursos criados pelo Terraform nesta configuração, util
 ```bash
 terraform destroy
 ```
-* Lembre de executar o comando tanto para a pasta `/_backend`, como para `/dev`
+* Lembre de executar o comando para a pasta `/dev`
 * Também pode ser executado com a flag -auto-approve.
