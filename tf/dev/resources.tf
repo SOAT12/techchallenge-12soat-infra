@@ -29,6 +29,45 @@ resource "aws_sqs_queue" "payment_notifications" {
   }
 }
 
+resource "aws_sqs_queue" "stock_add_event" {
+  name                      = "stock-add-event"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 20
+
+  tags = {
+    Environment = local.environment
+    Project     = "techchallenge-shared"
+  }
+}
+
+resource "aws_sqs_queue" "stock_remove_event" {
+  name                      = "stock-remove-event"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 20
+
+  tags = {
+    Environment = local.environment
+    Project     = "techchallenge-shared"
+  }
+}
+
+resource "aws_sqs_queue" "os_status_update_event" {
+  name                      = "os-status-update-event"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 20
+
+  tags = {
+    Environment = local.environment
+    Project     = "techchallenge-shared"
+  }
+}
+
 resource "aws_sns_topic" "payment_approved" {
   name = "payment-approved-topic"
 
