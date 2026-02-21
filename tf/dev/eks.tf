@@ -88,12 +88,22 @@ resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller" {
 
 
 
-data "aws_secretsmanager_secret" "techchallenge_secrets" {
-  name = "techchallenge-credentials"
+resource "aws_secretsmanager_secret" "techchallenge_secrets" {
+  name                    = "techchallenge-credentials"
+  recovery_window_in_days = 0 # For quick deletion/recreation in dev
 }
 
-data "aws_secretsmanager_secret_version" "techchallenge_secrets_version" {
-  secret_id = data.aws_secretsmanager_secret.techchallenge_secrets.id
+resource "aws_secretsmanager_secret_version" "techchallenge_secrets_version" {
+  secret_id = aws_secretsmanager_secret.techchallenge_secrets.id
+  secret_string = jsonencode({
+    # Placeholder for the secrets that will be managed manually or via another process
+    MERCADO_PAGO_ACCESS_TOKEN = "placeholder"
+    MONGODB_URI               = "placeholder"
+  })
+
+  lifecycle {
+    ignore_changes = [secret_string] # Allow manual updates without Terraform overwriting
+  }
 }
 
 resource "aws_iam_policy" "secrets_manager_read_policy" {
@@ -107,7 +117,7 @@ resource "aws_iam_policy" "secrets_manager_read_policy" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ],
-        Resource = data.aws_secretsmanager_secret.techchallenge_secrets.arn
+        Resource = aws_secretsmanager_secret.techchallenge_secrets.arn
       }
     ]
   })
