@@ -97,8 +97,8 @@ resource "aws_apigatewayv2_api" "webhook_proxy" {
 
 # Configures the integration to forward requests to the Classic Load Balancer
 resource "aws_apigatewayv2_integration" "elb_integration" {
-  api_id             = aws_apigatewayv2_api.webhook_proxy.id
-  integration_type   = "HTTP_PROXY"
+  api_id           = aws_apigatewayv2_api.webhook_proxy.id
+  integration_type = "HTTP_PROXY"
   # We use the {proxy} path variable to forward the exact path requested
   integration_uri    = "http://ad81070b45c5849cbb28a1991611f389-523620946.us-east-1.elb.amazonaws.com/{proxy}"
   integration_method = "ANY"
