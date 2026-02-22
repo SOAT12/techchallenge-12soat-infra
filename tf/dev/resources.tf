@@ -14,6 +14,21 @@ resource "aws_ecr_repository" "billing_api" {
   }
 }
 
+resource "aws_ecr_repository" "stock_api" {
+  name                 = "stock-api"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Project     = "techchallenge-stock"
+    Environment = local.environment
+  }
+}
+
 # --- Messaging (SQS/SNS) ---
 
 resource "aws_sqs_queue" "payment_notifications" {
