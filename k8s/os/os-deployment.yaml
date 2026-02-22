@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: stock-api-deployment
+  name: os-api-deployment
   labels:
-    app: stock-api
+    app: os-api
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: stock-api
+      app: os-api
   template:
     metadata:
       labels:
-        app: stock-api
+        app: os-api
     spec:
-      serviceAccountName: stock-sa
+      serviceAccountName: os-sa
       containers:
-      - name: stock-api
-        image: 258531703731.dkr.ecr.us-east-1.amazonaws.com/stock-api:latest # This will be your registry image url
+      - name: os-api
+        image: 258531703731.dkr.ecr.us-east-1.amazonaws.com/os-api:latest # This will be your registry image url
         imagePullPolicy: Always
         ports:
-        - containerPort: 8081
+        - containerPort: 8080
         env:
         - name: AWS_SECRET_ACCESS_KEY
           value: ""
@@ -36,7 +36,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8081
+            port: 8080
           initialDelaySeconds: 60
           periodSeconds: 10
           failureThreshold: 3
@@ -44,7 +44,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 8081
+            port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
           failureThreshold: 3
