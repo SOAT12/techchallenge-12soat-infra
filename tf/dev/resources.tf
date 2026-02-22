@@ -220,9 +220,9 @@ resource "aws_iam_policy" "billing_messaging_policy" {
   })
 }
 
-# Policy allowing the Billing API to interact with specific SQS queues and SNS topics
+# Policy allowing the Stock API to interact with specific SQS queues and SNS topics
 resource "aws_iam_policy" "stock_messaging_policy" {
-  name = "StockMessagingPolicy"
+  name        = "StockMessagingPolicy"
   description = "Allows Stock API to publish and consume from SQS"
 
   policy = jsonencode({
