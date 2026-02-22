@@ -167,6 +167,27 @@ module "billing_irsa_role" {
   }
 }
 
+# --- IAM IRSA for Stock ---
+
+module "stock_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "stock-api-irsa"
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["default:stock-sa"]
+    }
+  }
+
+  tags = {
+    Environment = local.environment
+    Project     = "techchallenge-stock"
+  }
+}
+
 # Policy allowing the Billing API to interact with specific SQS queues and SNS topics
 resource "aws_iam_policy" "billing_messaging_policy" {
   name        = "BillingMessagingPolicy"
@@ -199,7 +220,39 @@ resource "aws_iam_policy" "billing_messaging_policy" {
   })
 }
 
+# Policy allowing the Stock API to interact with specific SQS queues and SNS topics
+resource "aws_iam_policy" "stock_messaging_policy" {
+  name        = "StockMessagingPolicy"
+  description = "Allows Stock API to publish and consume from SQS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl"
+        ]
+        Resource = [
+          aws_sqs_queue.stock_add_event.arn,
+          aws_sqs_queue.stock_remove_event.arn,
+          aws_sqs_queue.os_status_update_event.arn
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "billing_irsa_messaging" {
   role       = module.billing_irsa_role.iam_role_name
   policy_arn = aws_iam_policy.billing_messaging_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "stock_irsa_messaging" {
+  role       = module.stock_irsa_role.iam_role_name
+  policy_arn = aws_iam_policy.stock_messaging_policy.arn
 }
