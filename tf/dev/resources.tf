@@ -29,6 +29,21 @@ resource "aws_ecr_repository" "stock_api" {
   }
 }
 
+resource "aws_ecr_repository" "os_api" {
+  name                 = "os-api"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Project     = "techchallenge-os"
+    Environment = local.environment
+  }
+}
+
 # --- Messaging (SQS/SNS) ---
 
 resource "aws_sqs_queue" "payment_notifications" {
@@ -188,6 +203,27 @@ module "stock_irsa_role" {
   }
 }
 
+# --- IAM IRSA for OS ---
+
+module "os_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "os-api-irsa"
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["default:os-sa"]
+    }
+  }
+
+  tags = {
+    Environment = local.environment
+    Project     = "techchallenge-os"
+  }
+}
+
 # Policy allowing the Billing API to interact with specific SQS queues and SNS topics
 resource "aws_iam_policy" "billing_messaging_policy" {
   name        = "BillingMessagingPolicy"
@@ -240,6 +276,34 @@ resource "aws_iam_policy" "stock_messaging_policy" {
         Resource = [
           aws_sqs_queue.stock_add_event.arn,
           aws_sqs_queue.stock_remove_event.arn,
+          aws_sqs_queue.os_status_update_event.arn,
+          aws_sqs_queue.payment_notifications.arn
+        ]
+      }
+    ]
+  })
+}
+
+# Policy allowing the OS API to interact with specific SQS queues and SNS topics
+resource "aws_iam_policy" "os_messaging_policy" {
+  name        = "OsMessagingPolicy"
+  description = "Allows OS API to publish and consume from SQS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl"
+        ]
+        Resource = [
+          aws_sqs_queue.stock_add_event.arn,
+          aws_sqs_queue.stock_remove_event.arn,
           aws_sqs_queue.os_status_update_event.arn
         ]
       }
@@ -255,4 +319,9 @@ resource "aws_iam_role_policy_attachment" "billing_irsa_messaging" {
 resource "aws_iam_role_policy_attachment" "stock_irsa_messaging" {
   role       = module.stock_irsa_role.iam_role_name
   policy_arn = aws_iam_policy.stock_messaging_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "os_irsa_messaging" {
+  role       = module.os_irsa_role.iam_role_name
+  policy_arn = aws_iam_policy.os_messaging_policy.arn
 }
