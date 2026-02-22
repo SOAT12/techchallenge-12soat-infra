@@ -36,7 +36,7 @@ resource "aws_iam_role" "github_actions_app_deploy" {
 # Permissions for the deployment role (ECR, EKS access)
 resource "aws_iam_role_policy_attachment" "github_actions_ecr_full" {
   role       = aws_iam_role.github_actions_app_deploy.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECR_FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "github_actions_eks_cluster" {
