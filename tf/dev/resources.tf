@@ -119,6 +119,18 @@ resource "aws_apigatewayv2_stage" "default_stage" {
   auto_deploy = true
 }
 
+# --- Load Balancer to Node Connectivity ---
+
+resource "aws_security_group_rule" "allow_lb_to_nodes" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
+  security_group_id        = module.eks.node_security_group_id
+  source_security_group_id = "sg-038e460c976e2fae2" # The Managed LB SG we found
+  description              = "Allow traffic from Managed Load Balancer to EKS nodes"
+}
+
 # --- IAM IRSA for Billing ---
 
 module "billing_irsa_role" {
