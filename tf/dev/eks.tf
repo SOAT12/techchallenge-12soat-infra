@@ -1,3 +1,49 @@
+# --- GitHub OIDC Provider ---
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1", "1c58a3a8518e8759bf075b76b750d4f2df264fcd"]
+}
+
+# --- Deployment Role for GitHub Actions ---
+
+resource "aws_iam_role" "github_actions_app_deploy" {
+  name = "GitHubActionsAppDeployRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:SOAT12/techchallenge-12SOAT*:*"
+          }
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Permissions for the deployment role (ECR, EKS access)
+resource "aws_iam_role_policy_attachment" "github_actions_ecr_full" {
+  role       = aws_iam_role.github_actions_app_deploy.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECR_FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_eks_cluster" {
+  role       = aws_iam_role.github_actions_app_deploy.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
@@ -8,7 +54,7 @@ module "eks" {
   kms_key_administrators = [
     "arn:aws:iam::258531703731:role/GitHubActionsInfraRole",
     "arn:aws:iam::258531703731:user/caiohnrq",
-    "arn:aws:iam::258531703731:role/GitHubActionsAppDeployRole"
+    aws_iam_role.github_actions_app_deploy.arn
   ]
 
   vpc_id     = module.vpc.vpc_id
@@ -34,7 +80,7 @@ module "eks" {
 
   aws_auth_roles = [
     {
-      rolearn  = "arn:aws:iam::258531703731:role/GitHubActionsAppDeployRole"
+      rolearn  = aws_iam_role.github_actions_app_deploy.arn
       username = "github-actions-app-deploy"
       groups   = ["system:masters"]
     }
