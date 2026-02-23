@@ -240,7 +240,10 @@ resource "aws_iam_policy" "billing_messaging_policy" {
           "sqs:GetQueueAttributes",
           "sqs:SendMessage"
         ],
-        Resource = aws_sqs_queue.payment_notifications.arn
+        Resource = [
+          aws_sqs_queue.payment_notifications.arn,
+          aws_sqs_queue.os_status_update_event.arn
+        ]
       },
       {
         Effect = "Allow",
